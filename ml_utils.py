@@ -6,14 +6,14 @@ from sklearn.decomposition import PCA
 def load_data():
     """
     load the raw data, convert each line of digits into an array of 'pixels'
-    :return:
+    also normalize to [0, 1] by dividing by 6
     """
     raw_data = []
     with open('./ProjectDigits_materials/mfeat-pix.txt', 'r') as f:
         for line in f:
             pixels = np.fromstring(line, dtype=int, sep=' ')
             raw_data.append(pixels)
-    return np.array(raw_data)
+    return np.array(raw_data) / 6
 
 
 def n_image_in_category(data) -> int:
@@ -80,7 +80,7 @@ def plot_sample_for_each_digit(data, n_samples=5, figsize=(10, 20), horizontal=F
         fig.add_subplot(row, col, i + 1)
 
         img = sample_images[i].reshape(16, 15)
-        plt.imshow(img, cmap='gray', vmin=0, vmax=6)
+        plt.imshow(img, cmap='gray', vmin=0, vmax=1)
         plt.axis('off')
 
 

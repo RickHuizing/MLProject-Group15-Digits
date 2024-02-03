@@ -4,7 +4,7 @@ import numpy as np
 
 def threshold_image(img, threshold=0):
     img = np.float32(img)
-    [thresh, img] = cv2.threshold(img, threshold, 6, cv2.THRESH_BINARY)
+    [thresh, img] = cv2.threshold(img, threshold, 1, cv2.THRESH_BINARY)
     return img
 
 
