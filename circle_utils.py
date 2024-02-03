@@ -2,13 +2,13 @@ import cv2
 import numpy as np
 
 
-def threshold_image(img, threshold=0):
+def threshold_image(img, threshold: float = 0.5):
     img = np.float32(img)
     [thresh, img] = cv2.threshold(img, threshold, 1, cv2.THRESH_BINARY)
     return img
 
 
-def count_circles(img, threshold=0):
+def count_circles(img, threshold: float = 0.5):
     img = threshold_image(img, threshold)
     img = cv2.convertScaleAbs(img)
 
@@ -33,7 +33,7 @@ def count_circles(img, threshold=0):
     return count
 
 
-def get_circle_data(data, threshold=3):
+def get_circle_data(data, threshold=0.5):
     counter = 0
     circle_counts = []
 
@@ -46,3 +46,25 @@ def get_circle_data(data, threshold=3):
 
     circle_counts = np.array(circle_counts)
     return circle_counts
+
+
+def find_optimal_threshold(data, thresholds_to_try=10, verbose=False):
+    circle_counts = np.zeros((thresholds_to_try, data.shape[0]), dtype=np.int8)
+
+    for threshold in range(thresholds_to_try):
+        circle_counts[threshold] = get_circle_data(data, threshold=threshold / 10)
+
+    expected_circle_counts_per_class = [1, 0, 0, 0, 0, 0, 1, 0, 2, 1]
+
+    as_expected_per_threshold = np.zeros(circle_counts.shape[0])
+    for threshold, circle_data in enumerate(circle_counts):
+        as_expected = 0
+        for digit in range(10):
+            for i in range(100):
+                if circle_data[digit * 100 + i] == expected_circle_counts_per_class[digit]:
+                    as_expected += 1
+        if verbose:
+            print(f'threshold {threshold / 10}: {as_expected / 10}% expected number of circles ')
+        as_expected_per_threshold[threshold] = as_expected
+    best_threshold = np.argmax(as_expected_per_threshold) / 10
+    return best_threshold
