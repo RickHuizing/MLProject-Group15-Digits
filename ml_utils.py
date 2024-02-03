@@ -82,6 +82,7 @@ def plot_sample_for_each_digit(data, n_samples=5, figsize=(10, 20), horizontal=F
         img = sample_images[i].reshape(16, 15)
         plt.imshow(img, cmap='gray', vmin=0, vmax=1)
         plt.axis('off')
+    return fig
 
 
 def perform_linear_ridge_regression(X, y, tiny=0.00001):
