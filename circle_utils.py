@@ -34,6 +34,9 @@ def count_circles(img, threshold: float = 0.5):
 
 
 def get_circle_data(data, threshold=0.5):
+    """
+    returns an array with a circle count for each image in data
+    """
     counter = 0
     circle_counts = []
 
@@ -49,13 +52,21 @@ def get_circle_data(data, threshold=0.5):
 
 
 def find_optimal_threshold(data, thresholds_to_try=10, verbose=False):
+    """
+    assumptions:
+     - 1000 16x15 greyscale images
+     - 100 examples per class
+     - first 100=0, second 100=1, third 100=2, ... until 9
+    """
+    assert data.shape == (1000, 16, 15)
+    # count circles in each image for each threshold
     circle_counts = np.zeros((thresholds_to_try, data.shape[0]), dtype=np.int8)
-
     for threshold in range(thresholds_to_try):
         circle_counts[threshold] = get_circle_data(data, threshold=threshold / 10)
 
     expected_circle_counts_per_class = [1, 0, 0, 0, 0, 0, 1, 0, 2, 1]
 
+    # for each threshold, count how many images are 'classified' correctly
     as_expected_per_threshold = np.zeros(circle_counts.shape[0])
     for threshold, circle_data in enumerate(circle_counts):
         as_expected = 0
