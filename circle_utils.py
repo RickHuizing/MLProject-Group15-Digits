@@ -79,3 +79,16 @@ def find_optimal_threshold(data, thresholds_to_try=10, verbose=False):
         as_expected_per_threshold[threshold] = as_expected
     best_threshold = np.argmax(as_expected_per_threshold) / 10
     return best_threshold
+
+
+def get_circle_data_as_feature(data: np.array):
+    circle_data = get_circle_data(data, threshold=0.5)
+    # normalize to max of 4 circles
+    circle_data[circle_data > 4] = 4
+    one_hot = np.zeros((circle_data.shape[0], 5), dtype=int)
+    one_hot[np.arange(circle_data.shape[0]), circle_data] = 1
+    return one_hot
+
+
+def add_circle_features_to_data(data: np.array):
+    return np.concatenate([data, get_circle_data_as_feature(data)], axis=1)

@@ -82,24 +82,49 @@ def plot_sample_for_each_digit(data, n_samples=5, figsize=(10, 20), horizontal=F
         img = sample_images[i].reshape(16, 15)
         plt.imshow(img, cmap='gray', vmin=0, vmax=1)
         plt.axis('off')
+    return fig
 
 
-def perform_linear_ridge_regression(X, y, tiny=0.00001):
+def perform_linear_ridge_regression(X, y, tiny=0.00001, do_add_bias=True):
     """
     Simple implementation of Ridge regression
     """
+    if do_add_bias:
+        X = add_bias(X)
     w_prime = np.linalg.inv((X.T @ X) + tiny * np.identity(X.shape[1])) @ X.T @ y
     w_opt = w_prime.T
     return w_opt
 
 
+def make_prediction(w_opt, img, do_add_bias=True):
+    if do_add_bias:
+        img = add_bias(img)
+    return w_opt @ img
+
+
+def add_bias(data):
+    if len(data.shape) == 1:
+        axis = 0
+        ones = [1]
+    else:
+        axis = 1
+        ones = np.ones((data.shape[0], 1))
+    return np.concatenate([data, ones], axis=axis)
+
+
 def evaluate_w_opt(w_opt: np.array,
                    train_data: np.array, test_data: np.array,
                    y_train: np.array, y_test: np.array,
-                   verbose=True):
+                   verbose=True,
+                   do_add_bias=True):
     """
     Evaluate by calculating the misclassification rate on training and test set
     """
+
+    if do_add_bias:
+        train_data = add_bias(train_data)
+        test_data = add_bias(test_data)
+
     misclassified_train = 0
     misclassified_test = 0
 
