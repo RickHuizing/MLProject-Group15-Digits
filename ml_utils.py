@@ -85,13 +85,13 @@ def plot_sample_for_each_digit(data, n_samples=5, figsize=(10, 20), horizontal=F
     return fig
 
 
-def perform_linear_ridge_regression(X, y, tiny=0.00001, do_add_bias=True):
+def perform_linear_ridge_regression(X, y, alpha=0.01, do_add_bias=True):
     """
     Simple implementation of Ridge regression
     """
     if do_add_bias:
         X = add_bias(X)
-    w_prime = np.linalg.inv((X.T @ X) + tiny * np.identity(X.shape[1])) @ X.T @ y
+    w_prime = np.linalg.inv((X.T @ X) + (alpha**2) * np.identity(X.shape[1])) @ X.T @ y
     w_opt = w_prime.T
     return w_opt
 
@@ -167,11 +167,26 @@ def train_val_split(training_data: np.array, y: np.array, n_folds: int, fold: in
             np.delete(y, val_indices, axis=0), y[val_indices])
 
 
-def pca_ridge_regression(train_set: np.array, val_set: np.array, train_y: np.array, val_y: np.array, n_components: int):
-    pca: PCA = PCA(n_components=n_components, svd_solver='full')
-    fitted = pca.fit(train_set)
-    train_pca = fitted.transform(train_set)
-    validation_pca = fitted.transform(val_set)
+def pca_ridge_regression(train_set: np.array, val_set: np.array, train_y: np.array, val_y: np.array,
+                         n_components: int, use_pca: PCA = None):
+    """
+    PCA-Ridge regression
+    :param n_components: number of principal components
+    :param use_pca: fitted PCA object to use
+    :return:
+    """
+    if use_pca is None:
+        pca: PCA = PCA(n_components=n_components, svd_solver='full')
+        pca.fit(train_set)
+    else:
+        pca: PCA = use_pca
+
+    train_pca = pca.transform(train_set)
+    validation_pca = pca.transform(val_set)
+
+    if use_pca is not None:
+        train_pca = train_pca[:, :n_components]
+        validation_pca = validation_pca[:, :n_components]
 
     w_opt = perform_linear_ridge_regression(train_pca, train_y)
     result = evaluate_w_opt(w_opt, train_pca, validation_pca, train_y, val_y, verbose=False)
