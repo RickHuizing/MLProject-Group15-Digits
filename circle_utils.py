@@ -51,7 +51,7 @@ def get_circle_data(data, threshold=0.5):
     return circle_counts
 
 
-def find_optimal_threshold(data, thresholds_to_try=10, verbose=False):
+def find_optimal_threshold(data, thresholds_to_try=6, verbose=False):
     """
     assumptions:
      - 1000 16x15 greyscale images
@@ -62,7 +62,7 @@ def find_optimal_threshold(data, thresholds_to_try=10, verbose=False):
     # count circles in each image for each threshold
     circle_counts = np.zeros((thresholds_to_try, data.shape[0]), dtype=np.int8)
     for threshold in range(thresholds_to_try):
-        circle_counts[threshold] = get_circle_data(data, threshold=threshold / 10)
+        circle_counts[threshold] = get_circle_data(data, threshold=threshold / thresholds_to_try)
 
     expected_circle_counts_per_class = [1, 0, 0, 0, 0, 0, 1, 0, 2, 1]
 
@@ -75,9 +75,9 @@ def find_optimal_threshold(data, thresholds_to_try=10, verbose=False):
                 if circle_data[digit * 100 + i] == expected_circle_counts_per_class[digit]:
                     as_expected += 1
         if verbose:
-            print(f'threshold {threshold / 10}: {as_expected / 10}% expected number of circles ')
+            print(f'threshold {threshold / thresholds_to_try:1.2f} & {as_expected / 10}\\% \\\\ expected number of circles ')
         as_expected_per_threshold[threshold] = as_expected
-    best_threshold = np.argmax(as_expected_per_threshold) / 10
+    best_threshold = np.argmax(as_expected_per_threshold) / thresholds_to_try
     return best_threshold
 
 

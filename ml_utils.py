@@ -168,7 +168,7 @@ def train_val_split(training_data: np.array, y: np.array, n_folds: int, fold: in
 
 
 def pca_ridge_regression(train_set: np.array, val_set: np.array, train_y: np.array, val_y: np.array,
-                         n_components: int, use_pca: PCA = None):
+                         alpha: float, n_components: int, use_pca: PCA = None):
     """
     PCA-Ridge regression
     :param n_components: number of principal components
@@ -188,7 +188,7 @@ def pca_ridge_regression(train_set: np.array, val_set: np.array, train_y: np.arr
         train_pca = train_pca[:, :n_components]
         validation_pca = validation_pca[:, :n_components]
 
-    w_opt = perform_linear_ridge_regression(train_pca, train_y)
+    w_opt = perform_linear_ridge_regression(train_pca, train_y, alpha=alpha)
     result = evaluate_w_opt(w_opt, train_pca, validation_pca, train_y, val_y, verbose=False)
 
     # calculate misclassification rates for train and val splits
